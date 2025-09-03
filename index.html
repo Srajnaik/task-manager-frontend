@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #010307 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 600px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #041d1f 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .auth-container, .app-container {
+            padding: 2rem;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #7700fe 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #4facfe;
+            border: 2px solid #4facfe;
+        }
+
+        .btn-secondary:hover {
+            background: #4facfe;
+            color: white;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .auth-switch button {
+            background: none;
+            border: none;
+            color: #4facfe;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: flex-start;
+        }
+
+        .task-input input, .task-input textarea {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 50px;
+        }
+
+        .task-input textarea {
+            font-family: inherit;
+        }
+
+        .task-input button {
+            padding: 1rem 1.5rem;
+            white-space: nowrap;
+        }
+
+        .tasks-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .task-item:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            background: #f8f9fa;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .task-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-complete {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background: #218838;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-undo {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-undo:hover {
+            background: #5a6268;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .task-counter {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .task-input {
+                flex-direction: column;
+            }
+
+            .task-actions {
+                justify-content: center;
+            }
+        }
+
+        /* Edit mode styles */
+        .task-item.editing {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .task-edit-form {
+            display: none;
+        }
+
+        .task-edit-form.active {
+            display: block;
+        }
+
+        .task-edit-form input,
+        .task-edit-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .task-edit-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-edit-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Authentication Section -->
+        <div id="authSection">
+            <div class="header">
+                <h1>Task Manager</h1>
+                <p>Organize your life, one task at a time</p>
+            </div>
+            
+            <div class="auth-container">
+                <div id="errorMessage" class="error-message hidden"></div>
+                
+                <form id="authForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="authSubmitBtn">Login</button>
+                    
+                    <div class="auth-switch">
+                        <span id="authSwitchText">Don't have an account?</span>
+                        <button type="button" id="authSwitchBtn">Sign up</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Task Management Section -->
+        <div id="appSection" class="hidden">
+            <div class="header">
+                <h1>My Tasks</h1>
+                <p id="welcomeMessage">Welcome back!</p>
+                <div class="task-counter" id="taskCounter">0 tasks</div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+            
+            <div class="app-container">
+                <div class="task-input">
+                    <div style="flex: 1;">
+                        <input type="text" id="taskTitle" placeholder="Task title" required>
+                        <textarea id="taskDescription" placeholder="Task description (optional)" rows="2"></textarea>
+                    </div>
+                    <button class="btn" id="addTaskBtn">Add Task</button>
+                </div>
+                
+                <div id="tasksContainer" class="tasks-container">
+                    <div class="empty-state" id="emptyState">
+                        <h3>No tasks yet</h3>
+                        <p>Add your first task to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = "https://task-manager-backend-fg8r.onrender.com"; // change to your deployed backend URL
+
+    let token = localStorage.getItem("token") || null;
+    let currentUser = null;
+    let editingTaskId = null;
+
+    // DOM elements
+    const authSection = document.getElementById('authSection');
+    const appSection = document.getElementById('appSection');
+    const authForm = document.getElementById('authForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const authSwitchBtn = document.getElementById('authSwitchBtn');
+    const authSwitchText = document.getElementById('authSwitchText');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const taskCounter = document.getElementById('taskCounter');
+    const taskTitle = document.getElementById('taskTitle');
+    const taskDescription = document.getElementById('taskDescription');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const tasksContainer = document.getElementById('tasksContainer');
+    const emptyState = document.getElementById('emptyState');
+
+    let isLoginMode = true;
+
+    // --------------------
+    // Utility functions
+    // --------------------
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove('hidden');
+        setTimeout(() => errorMessage.classList.add('hidden'), 5000);
+    }
+
+    function authHeaders() {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        };
+    }
+
+    // --------------------
+    // Auth functions
+    // --------------------
+    async function signup(username, password) {
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            if (!response.ok) throw new Error("Signup failed");
+            const user = await response.json();
+            console.log("Registered:", user);
+            return true;
+        } catch (err) {
+            showError(err.message);
+            return false;
+        }
+    }
+
+    async function login(username, password) {
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ username, password })
+            });
+            if (!response.ok) throw new Error("Login failed");
+            const data = await response.json();
+            token = data.access_token;
+            localStorage.setItem("token", token);
+            currentUser = username;
+            return true;
+        } catch (err) {
+            showError(err.message);
+            return false;
+        }
+    }
+
+    function logout() {
+        token = null;
+        localStorage.removeItem("token");
+        currentUser = null;
+        authSection.classList.remove("hidden");
+        appSection.classList.add("hidden");
+        authForm.reset();
+        tasksContainer.innerHTML = "";
+        tasksContainer.appendChild(emptyState);
+    }
+
+    function switchAuthMode() {
+        isLoginMode = !isLoginMode;
+        if (isLoginMode) {
+            authSubmitBtn.textContent = 'Login';
+            authSwitchText.textContent = "Don't have an account?";
+            authSwitchBtn.textContent = 'Sign up';
+        } else {
+            authSubmitBtn.textContent = 'Sign Up';
+            authSwitchText.textContent = 'Already have an account?';
+            authSwitchBtn.textContent = 'Login';
+        }
+        errorMessage.classList.add('hidden');
+    }
+
+    // --------------------
+    // Task functions
+    // --------------------
+    async function loadTasks() {
+        try {
+            const response = await fetch(`${API_URL}/tasks/`, {
+                method: "GET",
+                headers: authHeaders()
+            });
+            if (!response.ok) throw new Error("Failed to load tasks");
+            const data = await response.json();
+            renderTasks(data);
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    async function addTask(title, description = "") {
+        try {
+            const response = await fetch(`${API_URL}/tasks/`, {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify({ title, description })
+            });
+            if (!response.ok) throw new Error("Failed to add task");
+            await loadTasks();
+            taskTitle.value = "";
+            taskDescription.value = "";
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    async function toggleTaskComplete(task) {
+        try {
+            const response = await fetch(`${API_URL}/tasks/${task.id}`, {
+                method: "PUT",
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    title: task.title,
+                    description: task.description,
+                    completed: !task.completed
+                })
+            });
+            if (!response.ok) throw new Error("Failed to update task");
+            await loadTasks();
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    async function deleteTask(taskId) {
+        try {
+            const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+                method: "DELETE",
+                headers: authHeaders()
+            });
+            if (!response.ok) throw new Error("Failed to delete task");
+            await loadTasks();
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    async function saveTaskEdit(taskId, newTitle, newDescription, completed) {
+        try {
+            const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+                method: "PUT",
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    title: newTitle,
+                    description: newDescription,
+                    completed: completed
+                })
+            });
+            if (!response.ok) throw new Error("Failed to update task");
+            editingTaskId = null;
+            await loadTasks();
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    // --------------------
+    // UI Rendering
+    // --------------------
+    function updateTaskCounter(tasks) {
+        const totalTasks = tasks.length;
+        const completedTasks = tasks.filter(t => t.completed).length;
+        taskCounter.textContent = `${totalTasks} tasks (${completedTasks} completed)`;
+    }
+
+    function renderTasks(tasks) {
+        tasksContainer.innerHTML = "";
+        if (tasks.length === 0) {
+            tasksContainer.appendChild(emptyState);
+            updateTaskCounter([]);
+            return;
+        }
+        tasks.forEach(task => {
+            const taskElement = document.createElement("div");
+            taskElement.className = `task-item ${task.completed ? "completed" : ""}`;
+
+            taskElement.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                ${task.description ? `<div class="task-description">${task.description}</div>` : ""}
+                <div class="task-actions">
+                    <button class="task-btn ${task.completed ? "btn-undo" : "btn-complete"}">
+                        ${task.completed ? "Mark Incomplete" : "Mark Complete"}
+                    </button>
+                    <button class="task-btn btn-edit">Edit</button>
+                    <button class="task-btn btn-delete">Delete</button>
+                </div>
+            `;
+
+            // Actions
+            taskElement.querySelector(".btn-complete, .btn-undo")
+                .addEventListener("click", () => toggleTaskComplete(task));
+
+            taskElement.querySelector(".btn-delete")
+                .addEventListener("click", () => deleteTask(task.id));
+
+            taskElement.querySelector(".btn-edit")
+                .addEventListener("click", () => {
+                    const newTitle = prompt("Edit title:", task.title);
+                    const newDescription = prompt("Edit description:", task.description);
+                    if (newTitle !== null) {
+                        saveTaskEdit(task.id, newTitle, newDescription, task.completed);
+                    }
+                });
+
+            tasksContainer.appendChild(taskElement);
+        });
+
+        updateTaskCounter(tasks);
+    }
+
+    // --------------------
+    // Event Listeners
+    // --------------------
+    authForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        let success;
+        if (isLoginMode) {
+            success = await login(username, password);
+        } else {
+            success = await signup(username, password);
+            if (success) success = await login(username, password); // auto login
+        }
+
+        if (success) {
+            welcomeMessage.textContent = `Welcome, ${username}!`;
+            authSection.classList.add("hidden");
+            appSection.classList.remove("hidden");
+            await loadTasks();
+        }
+    });
+
+    authSwitchBtn.addEventListener("click", switchAuthMode);
+    logoutBtn.addEventListener("click", logout);
+
+    addTaskBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const title = taskTitle.value.trim();
+        if (title) {
+            await addTask(title, taskDescription.value.trim());
+        }
+    });
+
+    taskTitle.addEventListener("keypress", async (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const title = taskTitle.value.trim();
+            if (title) {
+                await addTask(title, taskDescription.value.trim());
+            }
+        }
+    });
+
+    // --------------------
+    // Auto-login if token exists
+    // --------------------
+    if (token) {
+        authSection.classList.add("hidden");
+        appSection.classList.remove("hidden");
+        loadTasks();
+    }
+
+</script>
+
+</body>
+</html>
