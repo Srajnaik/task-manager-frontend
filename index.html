@@ -22,6 +22,7 @@
 
         .container {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -430,7 +431,7 @@
     </div>
 
     <script>
-    const API_URL = "https://task-manager-backend-fg8r.onrender.com"; // change to your deployed backend URL
+    const API_URL = "https://task-manager-backend-production-0d36.up.railway.app"; // change to your deployed backend URL
 
     let token = localStorage.getItem("token") || null;
     let currentUser = null;
